@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -17,11 +18,21 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
+    //use SoftDeletes;
+    protected $table = 'user';
     protected $fillable = [
-        'name',
-        'email',
+        'firstname_lastname',
+        'mail',
         'password',
+        'activation_key',
+        'is_active',
+        'is_admin'
     ];
+
+    public function getAuthPassword()
+    {
+        return $this->password;
+    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -30,7 +41,7 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
-        'remember_token',
+        'activation_key',
     ];
 
     /**
@@ -42,4 +53,8 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+    public function detail()
+    {
+        return $this->hasOne('App\Models\UserDetail');
+    }
 }

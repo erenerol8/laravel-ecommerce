@@ -4,42 +4,68 @@
     <div class="container">
         <div class="bg-content">
             <h2>Sepet</h2>
-            <table class="table table-bordererd table-hover">
-                <tr>
-                    <th>Ürün</th>
-                    <th>Tutar</th>
-                    <th>Adet</th>
-                    <th>Ara Toplam</th>
-                    <th>İşlem</th>
-                </tr>
-                <tr>
-                    <td colspan="5">Henüz sepette ürün yok</td>
-                </tr>
-                <tr>
-                    <td> <img src="http://lorempixel.com/120/100/food/2"> Ürün adı</td>
-                    <td>18.99</td>
-                    <td>
-                        <a href="#" class="btn btn-xs btn-default">-</a>
-                        <span style="padding: 10px 20px">1</span>
-                        <a href="#" class="btn btn-xs btn-default">+</a>
-                    </td>
-                    <td>18.99</td>
-                    <td>
-                        <a href="#">Sil</a>
-                    </td>
-                </tr>
-                <tr>
-                    <th></th>
-                    <th></th>
-                    <th>Toplam Tutar (KDV Dahil)</th>
-                    <th>18.99</th>
-                    <th></th>
-                </tr>
-            </table>
-            <div>
-                <a href="#" class="btn btn-info pull-left">Sepeti Boşalt</a>
-                <a href="#" class="btn btn-success pull-right btn-lg">Ödeme Yap</a>
-            </div>
+            @include('layouts.partials.alert')
+
+            @if (count(Cart::content()) > 0)
+                <table class="table table-bordererd table-hover">
+                    <tr>
+                        <th colspan="2">Ürün</th>
+                        <th>Adet Fiyatı</th>
+                        <th>Adet</th>
+                        <th>Tutar</th>
+                    </tr>
+                    @foreach (Cart::content() as $productCartItem)
+                        <tr>
+                            <td style="width:120px">
+                                <img src="http://via.placeholder.com/120x100?text=UrunResmi">
+                            </td>
+                            <td>{{ $productCartItem->name }}</td>
+                            <form action="{{ route('basket.remove', $productCartItem->rowId) }}" method="post">
+                                {{ csrf_field() }}
+                                {{ method_field('DELETE') }}
+                                <input type="submit" class="btn btn-danger btn-xs" value="Sepetten Kaldır">
+                            </form>
+                            <td>{{ $productCartItem->price }} ₺</td>
+                            <td>
+                                <a href="#" class="btn btn-xs btn-default product-price-discrement"
+                                    data-id="{{ $productCartItem->rowId }}"
+                                    data-price="{{ $productCartItem->qty - 1 }}">-</a>
+                                <span style="padding: 10px 20px">{{ $productCartItem->qty }}</span>
+                                <a href="#" class="btn btn-xs btn-default product-price-increment"
+                                    data-id="{{ $productCartItem->rowId }}"
+                                    data-price="{{ $productCartItem->qty + 1 }}">+</a>
+                            </td>
+                            <td class="text-right">
+                                {{ $productCartItem->subtotal }}₺
+                            </td>
+                        </tr>
+                    @endforeach
+                    <tr>
+                        <th colspan="4" class="text-right">Alt Toplam</th>
+                        <td class="text-right">{{ Cart::subtotal() }} ₺</td>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <th colspan="4" class="text-right">KDV</th>
+                        <td class="text-right">{{ Cart::tax() }} ₺</td>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <th colspan="4" class="text-right">Genel Toplam</th>
+                        <td class="text-right">{{ Cart::total() }} ₺</td>
+                        <th></th>
+                    </tr>
+                </table>
+
+                <form action="{{ route('basket.clear') }}" method="post">
+                    {{ csrf_field() }}
+                    {{ method_field('DELETE') }}
+                    <input type="submit" class="btn btn-info pull-left" value="Sepeti Boşalt">
+                </form>
+                <a href="{{ route('payment') }}" class="btn btn-success pull-right btn-lg">Ödeme Yap</a>
+            @else
+                <p>sepetinizde ürün yok</p>
+            @endif
         </div>
     </div>
 @endsection
